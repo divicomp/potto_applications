@@ -1,0 +1,36 @@
+# Benchmarks
+
+This folder contains benchmarks of our differentiable programming language Potto. The graphics applications can be found at [graphics](../grahpics). The implementation for Potto can be found at https://github.com/divicomp/potto.
+
+
+## Microbenchmarks
+
+We design two microbenchmarks to compare Potto with [Teg](https://github.com/ChezJrk/Teg) erms of compile time (time to calculate the derivative), evaluation time, total time (both compilation and evaluation), and code size.
+
+### Increasing the number of parametric discontinuities
+
+To study the scalability of Potto and Teg in terms of the number of parametric discontinuities that are differentiated. We design programs that generate expressions evaluating increasing numbers of Heavisides multiplied by a fixed function, which contains increasing numberss of Dirac deltas in derivative.
+
+See `run_potto_heaviside_microbenchmark` in `potto_microbenchmarks.py` and `run_teg_heaviside_microbenchmark` in `teg_microbenchmarks.py` for Potto and Teg implementations of the benchmark, respectively.
+
+
+### Separate compilation
+
+To study the impact of separate compilation. We design programs that generate expressions with 90 parametric discontinuities and scale the number of times we swap the shaders.
+
+See `run_potto_shader_swap_microbenchmark` in `potto_microbenchmarks.py` and `run_teg_shader_swap_microbenchmark` in `teg_microbenchmarks.py` for Potto and Teg implementations of the benchmark, respectively.
+
+
+### Reproduce
+
+To reproduce figures of these two microbenchmarks (Fig.9 and Fig.10 in the paper), just run:
+
+
+```
+python plot_figures.py
+```
+
+Notice that for the separate compilation benchmark, the compilation time of Teg reaches timeout very quickly so we manually set its maximum number of shader swaps to 15.
+
+
+

@@ -39,7 +39,7 @@ def plot_heavisides(num_heaviside=10, load_local=False):
         np.save("potto_ast_sizes_heavisides.npy", np.array(potto_ast_sizes))
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.set_xlabel("Number of Heavisides", fontsize=25)
+    ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Compile Time", fontsize=25)
@@ -54,7 +54,7 @@ def plot_heavisides(num_heaviside=10, load_local=False):
     plt.savefig("heavisides_compile_time.png", bbox_inches = "tight")
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.set_xlabel("Number of Heavisides", fontsize=25)
+    ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Evaluation Time", fontsize=25)
@@ -69,7 +69,7 @@ def plot_heavisides(num_heaviside=10, load_local=False):
     plt.savefig("heavisides_eval_time.png", bbox_inches = "tight")
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.set_xlabel("Number of Heavisides", fontsize=25)
+    ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Size", fontsize=25)
     ax.set_title("AST Size", fontsize=25)
     ax.plot(teg_num_heavisides, teg_ast_sizes, label="Teg", linewidth=4, color="#648FFF")
@@ -83,7 +83,7 @@ def plot_heavisides(num_heaviside=10, load_local=False):
     plt.savefig("heavisides_code_size.png", bbox_inches = "tight")
 
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.set_xlabel("Number of Heavisides", fontsize=25)
+    ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Total Time", fontsize=25)
