@@ -18,7 +18,7 @@ See `run_potto_heaviside_microbenchmark` in `potto_microbenchmarks.py` and `run_
 
 ### Separate compilation
 
-To study the impact of separate compilation. We study a program with 90 parametric discontinuities and scale the number of times we swap the shaders.
+We compare Potto with Teg on a benchmark requiring separate compilation. We study a program with 90 parametric discontinuities and scale the number of times we swap the shaders. We compute the derivative and evaluate it at candidate shaders `f1, f2` that are substituted for `f` in the previous example.
 
 See `run_potto_shader_swap_microbenchmark` in `potto_microbenchmarks.py` and `run_teg_shader_swap_microbenchmark` in `teg_microbenchmarks.py` for Potto and Teg implementations of the benchmark, respectively.
 
