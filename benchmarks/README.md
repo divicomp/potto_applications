@@ -5,11 +5,13 @@ This folder contains benchmarks of our differentiable programming language Potto
 
 ## Microbenchmarks
 
-We design two microbenchmarks to compare Potto with [Teg](https://github.com/ChezJrk/Teg) erms of compile time (time to calculate the derivative), evaluation time, total time (both compilation and evaluation), and code size.
+We design two microbenchmarks to compare Potto with [Teg](https://github.com/ChezJrk/Teg).
+We compare compile time (time to calculate the derivative), runtime, total time (both compilation and runtime), and code size.
 
 ### Increasing the number of parametric discontinuities
 
-To study the scalability of Potto and Teg in terms of the number of parametric discontinuities that are differentiated. We design programs that generate expressions evaluating increasing numbers of Heavisides multiplied by a fixed function, which contains increasing numberss of Dirac deltas in derivative.
+We study how the performance of Potto and Teg scale as we increase the number of differentiated parametric discontinuities.
+To do this, we increase the numbers of conditionals added together. This results in an increasing numbers of Dirac deltas in derivative.
 
 See `run_potto_heaviside_microbenchmark` in `potto_microbenchmarks.py` and `run_teg_heaviside_microbenchmark` in `teg_microbenchmarks.py` for Potto and Teg implementations of the benchmark, respectively.
 
