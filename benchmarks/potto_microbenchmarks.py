@@ -23,6 +23,7 @@ import time
 
 sys.setrecursionlimit(10**6)
 
+NUM_RUNS = 10
 
 def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
     x = TegVar("x")
@@ -77,27 +78,33 @@ def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
         var_val = VarVal(var_val)
         integral = Function((f,), Int(big, measure))
 
-        # with separate compilation
-        start = time.time()
-        di = deriv(integral, ctx)
-        dexpr1s = []
-        for _ in range(n):
-            ds1 = deriv(shader1, ctx)
-            dexpr1s.append(App(di, (shader1, ds1)))
-        ds2 = deriv(shader2, ctx)
-        dexpr2 = App(di, (shader2, ds2))
-        dexpr = dexpr2
-        for dexpr1 in dexpr1s:
-            dexpr += dexpr1
-        end = time.time()
+        compile_time_sum = 0.0
+        eval_time_sum = 0.0
+        for _ in range(NUM_RUNS):
+            # with separate compilation
+            start = time.time()
+            di = deriv(integral, ctx)
+            dexpr1s = []
+            for _ in range(n):
+                ds1 = deriv(shader1, ctx)
+                dexpr1s.append(App(di, (shader1, ds1)))
+            ds2 = deriv(shader2, ctx)
+            dexpr2 = App(di, (shader2, ds2))
+            dexpr = dexpr2
+            for dexpr1 in dexpr1s:
+                dexpr += dexpr1
+            end = time.time()
+            compile_time = end - start
+            compile_time_sum += compile_time
 
-        compile_time = end - start
+            start = time.time()
+            _ = evaluate(dexpr, var_val, num_samples)
+            end = time.time()
+            eval_time = end - start
+            eval_time_sum += eval_time
+        compile_time = compile_time_sum / NUM_RUNS
         print(f'Compile duration: {compile_time}')
-
-        start = time.time()
-        v = evaluate(dexpr, var_val, num_samples)
-        end = time.time()
-        eval_time = end - start
+        eval_time = eval_time_sum / NUM_RUNS
         print(f'evaluation duration: {eval_time}')
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")
@@ -165,26 +172,30 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
         var_val = VarVal(var_val)
         integral = Function((f,), Int(big, measure))
 
-        # with separate compilation
-        start = time.time()
-        di = deriv(integral, ctx)
-        ds1 = deriv(shader1, ctx)
-        dexpr1 = App(di, (shader1, ds1))
-        ds2 = deriv(shader2, ctx)
-        dexpr2 = App(di, (shader2, ds2))
-        dexpr = dexpr2
-        dexpr += dexpr1
-        end = time.time()
+        compile_time_sum = 0.0
+        eval_time_sum = 0.0
+        for _ in range(NUM_RUNS):
+            # with separate compilation
+            start = time.time()
+            di = deriv(integral, ctx)
+            ds1 = deriv(shader1, ctx)
+            dexpr1 = App(di, (shader1, ds1))
+            ds2 = deriv(shader2, ctx)
+            dexpr2 = App(di, (shader2, ds2))
+            dexpr = dexpr2
+            dexpr += dexpr1
+            end = time.time()
+            compile_time = end - start
+            compile_time_sum += compile_time
 
-        compile_time = end - start
-        print(f'Compile duration: {compile_time}')
-
-        start = time.time()
-        for _ in range(10):
+            start = time.time()
             _ = evaluate(dexpr, var_val, num_samples)
-        end = time.time()
-        eval_time = (end - start) / 10
-
+            end = time.time()
+            eval_time = (end - start)
+            eval_time_sum += eval_time
+        compile_time = compile_time_sum / NUM_RUNS
+        print(f'Compile duration: {compile_time}')
+        eval_time = eval_time_sum / NUM_RUNS
         print(f'evaluation duration: {eval_time}')
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")

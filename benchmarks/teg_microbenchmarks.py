@@ -19,6 +19,8 @@ from teg.derivs.fwd_deriv import fwd_deriv
 
 sys.setrecursionlimit(10**6)
 
+NUM_RUNS = 10
+
 def run_teg_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
     x = TegVar("x")
     a = Var("a")
@@ -54,15 +56,22 @@ def run_teg_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
         for shader1 in shader1s:
             expr += shader1
 
-        start = time.time()
-        dintegral = fwd_deriv(expr, ctx)
-        delta_free = reduce_to_base(dintegral, True)
-        compile_time = time.time() - start
-        print(f'Compile duration: {compile_time}')
+        compile_time_sum = 0.0
+        eval_time_sum = 0.0
+        for _ in range(NUM_RUNS):
+            start = time.time()
+            dintegral = fwd_deriv(expr, ctx)
+            delta_free = reduce_to_base(dintegral, True)
+            compile_time = time.time() - start
+            compile_time_sum += compile_time
 
-        start = time.time()
-        val = evaluate(delta_free, backend="numpy", num_samples=num_samples)
-        eval_time = time.time() - start
+            start = time.time()
+            _ = evaluate(delta_free, backend="numpy", num_samples=num_samples)
+            eval_time = time.time() - start
+            eval_time_sum += eval_time
+        compile_time = compile_time_sum / NUM_RUNS
+        print(f'Compile duration: {compile_time}')
+        eval_time = eval_time_sum / NUM_RUNS
         print(f'evaluation duration: {eval_time}')
         ast_size = get_ast_size(delta_free)
         print(f"ast size: {ast_size}")
@@ -109,15 +118,22 @@ def run_teg_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
         expr = shader2
         expr += shader1
 
-        start = time.time()
-        dintegral = fwd_deriv(expr, ctx)
-        delta_free = reduce_to_base(dintegral, True)
-        compile_time = time.time() - start
-        print(f'Compile duration: {compile_time}')
+        compile_time_sum = 0.0
+        eval_time_sum = 0.0
+        for _ in range(NUM_RUNS):
+            start = time.time()
+            dintegral = fwd_deriv(expr, ctx)
+            delta_free = reduce_to_base(dintegral, True)
+            compile_time = time.time() - start
+            compile_time_sum += compile_time
 
-        start = time.time()
-        val = evaluate(delta_free, backend="numpy", num_samples=num_samples)
-        eval_time = time.time() - start
+            start = time.time()
+            _ = evaluate(delta_free, backend="numpy", num_samples=num_samples)
+            eval_time = time.time() - start
+            eval_time_sum += eval_time
+        compile_time = compile_time_sum / NUM_RUNS
+        print(f'Compile duration: {compile_time}')
+        eval_time = eval_time_sum / NUM_RUNS
         print(f'evaluation duration: {eval_time}')
         ast_size = get_ast_size(delta_free)
         print(f"ast size: {ast_size}")
