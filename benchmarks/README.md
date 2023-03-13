@@ -36,12 +36,9 @@ Notice that for the separate compilation benchmark, the compilation time of Teg 
 
 
 ## Image stylization
-We compare Potto and Teg using the image stylization example from Teg paper in FIgures 5 and 6. Similar to microbenchmarks, we report compilation time, evaluation time, total time, and code size for linear and quadratic shader stylization.
-
-## Reproduce
+We compare Potto and Teg using the image stylization example from Teg paper in Figures 5 and 6. Similar to microbenchmarks, we report compilation time, evaluation time, total time, and code size for the linear and quadratic shader stylizations.
 
 To reproduce Table 1, run:
-
 ```
 python potto_rasterization.py
 python teg_rasterization.py
