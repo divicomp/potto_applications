@@ -11,7 +11,7 @@ We compare compile time (time to calculate the derivative), runtime, total time 
 ### Increasing the number of parametric discontinuities
 
 We study how the performance of Potto and Teg scale as we increase the number of differentiated parametric discontinuities.
-To do this, we increase the numbers of conditionals `[(x + 1)/(n + 1) > 0]f(x)(1/n)` added together. This results in an increasing numbers of Dirac deltas in derivative.
+To do this, we increase the numbers of conditionals added together. Concretely, we sum terms of the form `[(x + 1)/(n + 1) > 0]f(x)(1/n)`, where `f` represents a shader. This results in an increasing numbers of Dirac deltas in derivative.
 
 See `run_potto_heaviside_microbenchmark` in `potto_microbenchmarks.py` and `run_teg_heaviside_microbenchmark` in `teg_microbenchmarks.py` for Potto and Teg implementations of the benchmark, respectively.
 
