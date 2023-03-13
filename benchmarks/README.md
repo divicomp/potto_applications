@@ -23,7 +23,7 @@ See `run_potto_shader_swap_microbenchmark` in `potto_microbenchmarks.py` and `ru
 
 ### Reproduce
 
-To reproduce figures of these two microbenchmarks (Fig.9 and Fig.10 in the paper), just run:
+To reproduce figures of these two microbenchmarks (Fig.9 and Fig.10 in the paper), run:
 
 
 ```
@@ -33,4 +33,14 @@ python plot_figures.py
 Notice that for the separate compilation benchmark, the compilation time of Teg reaches timeout very quickly so we manually set its maximum number of shader swaps to 15.
 
 
+## Image stylization
+We compare Potto and Teg using the image stylization example from Teg paper in FIgures 5 and 6. Similar to microbenchmarks, we report compilation time, evaluation time, total time, and code size for linear and quadratic shader stylization.
 
+## Reproduce
+
+To reproduce Table 1, run:
+
+```
+python potto_rasterization.py
+python teg_rasterization.py
+```

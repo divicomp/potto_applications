@@ -93,7 +93,6 @@ def linear_color():
     tc2, dtc2 = Var("tc2"), Var("dtc2")
     a, b, c = Var("alpha"), Var("beta"), Var("gamma")
     return (
-        # Function((a, b, c), (tc0 * a + tc1 * b + tc2 * c)),
         Function((a, b, c), (tc0 * a + tc1 * b + tc2 * c)),
         (tc0, tc1, tc2),
         (dtc0, dtc1, dtc2),
@@ -233,8 +232,6 @@ def test_fragments(color_style, num_samples=10):
     end = time.time()
     eval_time = end - start
     print(f'evaluation duration: {eval_time}')
-    # print('primal: ', evaluate(App(pixel_value, values), VarVal(c_value_map), num_samples=1000))
-    # print('deriv: ', a)
 
 
 def simple_test():
@@ -270,8 +267,6 @@ def test_affine_inverse():
 
 
 if __name__ == "__main__":
-    print("const color test")
-    test_fragments(const_color, num_samples=100)
     print("linear color test")
     test_fragments(linear_color, num_samples=100)
     print("quadratic color test")
