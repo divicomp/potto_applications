@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Type
+import itertools
 
 from potto import (
     Int,
@@ -20,6 +21,8 @@ from potto import (
     Samples,
 )
 from potto import simplify
+from potto.lang.evaluate import evaluate
+
 
 def lookup_tvar_in_expr(expr: GExpr, tvar: GExpr) -> bool:
     match expr:
@@ -53,6 +56,16 @@ class LinearDiffeo(Diffeomorphism):
         finv = simplify(finv)
 
         return finv, tvars[1]
+
+    def bounds_transfer(self, lower_left_corner: tuple, upper_right_corner: tuple, env):
+        corners = itertools.product(*zip(lower_left_corner, upper_right_corner))
+        corner_images = []
+        for corner in corners:
+            funs = self.function(self.vars, corner)
+            corner_images.append([evaluate(f, env) for f in funs])
+        mins = tuple(min(xs) for xs in zip(*corner_images))
+        maxs = tuple(max(xs) for xs in zip(*corner_images))
+        return mins, maxs
 
     @classmethod
     def holes(cls, e: GExpr, to_replace: dict[int, GExpr]) -> GExpr:
