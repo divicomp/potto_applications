@@ -23,7 +23,8 @@ import time
 
 sys.setrecursionlimit(10**6)
 
-NUM_RUNS = 10
+NUM_SHADER_RUNS = 3
+NUM_HEAVISIDE_RUNS = 10
 
 def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
     x = TegVar("x")
@@ -80,7 +81,7 @@ def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
 
         compile_times.append([])
         eval_times.append([])
-        for _ in range(NUM_RUNS):
+        for _ in range(NUM_SHADER_RUNS):
             # with separate compilation
             start = time.time()
             di = deriv(integral, ctx)
@@ -170,7 +171,7 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
 
         compile_times.append([])
         eval_times.append([])
-        for _ in range(NUM_RUNS):
+        for _ in range(NUM_HEAVISIDE_RUNS):
             # with separate compilation
             start = time.time()
             di = deriv(integral, ctx)
@@ -189,8 +190,8 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
             end = time.time()
             eval_time = (end - start)
             eval_times[n].append(eval_time)
-        assert(len(compile_times[n]) == NUM_RUNS)
-        assert(len(eval_times[n]) == NUM_RUNS)
+        assert(len(compile_times[n]) == NUM_HEAVISIDE_RUNS)
+        assert(len(eval_times[n]) == NUM_HEAVISIDE_RUNS)
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")
         ast_sizes.append(size)

@@ -19,8 +19,8 @@ from teg.derivs.fwd_deriv import fwd_deriv
 
 sys.setrecursionlimit(10**6)
 
-NUM_TEG_RUNS = 3
-NUM_POTTO_RUNS = 5
+NUM_SHADER_RUNS = 3
+NUM_HEAVISIDE_RUNS = 10
 
 def run_teg_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
     x = TegVar("x")
@@ -59,7 +59,7 @@ def run_teg_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
 
         compile_times.append([])
         eval_times.append([])
-        for _ in range(NUM_TEG_RUNS):
+        for _ in range(NUM_SHADER_RUNS):
             start = time.time()
             dintegral = fwd_deriv(expr, ctx)
             delta_free = reduce_to_base(dintegral, True)
@@ -69,8 +69,8 @@ def run_teg_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
             _ = evaluate(delta_free, backend="numpy", num_samples=num_samples)
             eval_time = time.time() - start
             eval_times[n].append(eval_time)
-        assert(len(compile_times[n]) == NUM_RUNS)
-        assert(len(eval_times[n]) == NUM_RUNS)
+        assert(len(compile_times[n]) == NUM_SHADER_RUNS)
+        assert(len(eval_times[n]) == NUM_SHADER_RUNS)
         ast_size = get_ast_size(delta_free)
         print(f"ast size: {ast_size}")
         ast_sizes.append(ast_size)
@@ -116,7 +116,7 @@ def run_teg_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
 
         compile_times.append([])
         eval_times.append([])
-        for _ in range(NUM_POTTO_RUNS):
+        for _ in range(NUM_HEAVISIDE_RUNS):
             start = time.time()
             dintegral = fwd_deriv(expr, ctx)
             delta_free = reduce_to_base(dintegral, True)
@@ -127,8 +127,8 @@ def run_teg_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
             _ = evaluate(delta_free, backend="numpy", num_samples=num_samples)
             eval_time = time.time() - start
             eval_times[n].append(eval_time)
-        assert(len(compile_times[n]) == NUM_RUNS)
-        assert(len(eval_times[n]) == NUM_RUNS)
+        assert(len(compile_times[n]) == NUM_HEAVISIDE_RUNS)
+        assert(len(eval_times[n]) == NUM_HEAVISIDE_RUNS)
         ast_size = get_ast_size(delta_free)
         print(f"ast size: {ast_size}")
         ast_sizes.append(ast_size)
