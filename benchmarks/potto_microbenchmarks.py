@@ -78,8 +78,8 @@ def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
         var_val = VarVal(var_val)
         integral = Function((f,), Int(big, measure))
 
-        compile_time_sum = 0.0
-        eval_time_sum = 0.0
+        compile_times.append([])
+        eval_times.append([])
         for _ in range(NUM_RUNS):
             # with separate compilation
             start = time.time()
@@ -95,21 +95,17 @@ def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
                 dexpr += dexpr1
             end = time.time()
             compile_time = end - start
-            compile_time_sum += compile_time
+            compile_times[n].append(compile_time)
 
             start = time.time()
             _ = evaluate(dexpr, var_val, num_samples)
             end = time.time()
             eval_time = end - start
-            eval_time_sum += eval_time
-        compile_time = compile_time_sum / NUM_RUNS
-        print(f'Compile duration: {compile_time}')
-        eval_time = eval_time_sum / NUM_RUNS
-        print(f'evaluation duration: {eval_time}')
+            eval_times[n].append(eval_time)
+        assert(len(compile_times[n]) == NUM_RUNS)
+        assert(len(eval_times[n]) == NUM_RUNS)
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")
-        compile_times.append(compile_time)
-        eval_times.append(eval_time)
         ast_sizes.append(size)
 
     print(num_shader_swaps)
@@ -172,8 +168,8 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
         var_val = VarVal(var_val)
         integral = Function((f,), Int(big, measure))
 
-        compile_time_sum = 0.0
-        eval_time_sum = 0.0
+        compile_times.append([])
+        eval_times.append([])
         for _ in range(NUM_RUNS):
             # with separate compilation
             start = time.time()
@@ -186,21 +182,17 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
             dexpr += dexpr1
             end = time.time()
             compile_time = end - start
-            compile_time_sum += compile_time
+            compile_times[n].append(compile_time)
 
             start = time.time()
             _ = evaluate(dexpr, var_val, num_samples)
             end = time.time()
             eval_time = (end - start)
-            eval_time_sum += eval_time
-        compile_time = compile_time_sum / NUM_RUNS
-        print(f'Compile duration: {compile_time}')
-        eval_time = eval_time_sum / NUM_RUNS
-        print(f'evaluation duration: {eval_time}')
+            eval_times[n].append(eval_time)
+        assert(len(compile_times[n]) == NUM_RUNS)
+        assert(len(eval_times[n]) == NUM_RUNS)
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")
-        compile_times.append(compile_time)
-        eval_times.append(eval_time)
         ast_sizes.append(size)
 
     print(num_heavisides)
@@ -209,18 +201,3 @@ def run_potto_heaviside_microbenchmark(num_heaviside=10, num_samples=10):
     print(ast_sizes)
     return num_heavisides, compile_times, eval_times, ast_sizes
 
-
-if __name__ == "__main__":
-    num_shader_swaps, compile_times, eval_times, ast_sizes = run_potto_shader_swap_microbenchmark(num_shader_swap=12, num_samples=10)
-    plt.title("Number of shader swaps microbenchmark")
-    plt.plot(num_shader_swaps, compile_times, label="compile time")
-    plt.plot(num_shader_swaps, eval_times, label="eval time")
-    plt.legend(loc="upper right")
-    plt.show()
-
-    num_heavisides, compile_times, eval_times, ast_sizes = run_potto_heaviside_microbenchmark(num_heaviside=12, num_samples=10)
-    plt.title("Number of Heavisides microbenchmark")
-    plt.plot(num_heavisides, compile_times, label="compile time")
-    plt.plot(num_heavisides, eval_times, label="eval time")
-    plt.legend(loc="upper right")
-    plt.show()

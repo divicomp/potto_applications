@@ -6,6 +6,8 @@ from potto_microbenchmarks import run_potto_heaviside_microbenchmark, run_potto_
 import numpy as np
 import argparse
 
+def geo_mean_overflow(iterable):
+    return np.exp(np.log(iterable).mean())
 
 def plot_heavisides(num_heaviside=10, load_local=False):
     if load_local:
@@ -38,13 +40,16 @@ def plot_heavisides(num_heaviside=10, load_local=False):
         np.save("potto_total_times_heavisides.npy", np.array(potto_total_times))
         np.save("potto_ast_sizes_heavisides.npy", np.array(potto_ast_sizes))
 
+    teg_compile_times_mean = np.array([geo_mean_overflow(x) for x in teg_compile_times])
+    potto_compile_times_mean = np.array([geo_mean_overflow(x) for x in potto_compile_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Compile Time", fontsize=25)
-    ax.plot(teg_num_heavisides, teg_compile_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_heavisides, potto_compile_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_heavisides, teg_compile_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_heavisides, potto_compile_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -53,13 +58,16 @@ def plot_heavisides(num_heaviside=10, load_local=False):
     ax.legend(loc="upper left", fontsize=25)
     plt.savefig("heavisides_compile_time.png", bbox_inches = "tight")
 
+    teg_eval_times_mean = np.array([geo_mean_overflow(x) for x in teg_eval_times])
+    potto_eval_times_mean = np.array([geo_mean_overflow(x) for x in potto_eval_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Evaluation Time", fontsize=25)
-    ax.plot(teg_num_heavisides, teg_eval_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_heavisides, potto_eval_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_heavisides, teg_eval_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_heavisides, potto_eval_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -82,13 +90,16 @@ def plot_heavisides(num_heaviside=10, load_local=False):
     ax.legend(loc="upper left", fontsize=25)
     plt.savefig("heavisides_code_size.png", bbox_inches = "tight")
 
+    teg_total_times_mean = np.array([geo_mean_overflow(x) for x in teg_total_times])
+    potto_total_times_mean = np.array([geo_mean_overflow(x) for x in potto_total_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Deltas", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Total Time", fontsize=25)
-    ax.plot(teg_num_heavisides, teg_total_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_heavisides, potto_total_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_heavisides, teg_total_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_heavisides, potto_total_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -112,30 +123,32 @@ def plot_shader_swaps(num_shader_swap=10, load_local=False):
         potto_total_times = np.load("potto_total_times_shader_swaps.npy")
         potto_ast_sizes = np.load("potto_ast_sizes_shader_swaps.npy")
     else:
-        teg_num_shader_swaps, teg_compile_times, teg_eval_times, teg_ast_sizes = run_teg_shader_swap_microbenchmark(num_shader_swap=min(num_shader_swap, 15), num_samples=10)
         potto_num_shader_swaps, potto_compile_times, potto_eval_times, potto_ast_sizes = run_potto_shader_swap_microbenchmark(num_shader_swap=num_shader_swap, num_samples=10)
-        teg_total_times = np.array(teg_compile_times) + np.array(teg_eval_times)
         potto_total_times = np.array(potto_compile_times) + np.array(potto_eval_times)
-
-        np.save("teg_num_shader_swaps.npy", np.array(teg_num_shader_swaps))
-        np.save("teg_compile_times_shader_swaps.npy", np.array(teg_compile_times))
-        np.save("teg_eval_times_shader_swaps.npy", np.array(teg_eval_times))
-        np.save("teg_total_times_shader_swaps.npy", np.array(teg_total_times))
-        np.save("teg_ast_sizes_shader_swaps.npy", np.array(teg_ast_sizes))
-
         np.save("potto_num_shader_swaps.npy", np.array(potto_num_shader_swaps))
         np.save("potto_compile_times_shader_swaps.npy", np.array(potto_compile_times))
         np.save("potto_eval_times_shader_swaps.npy", np.array(potto_eval_times))
         np.save("potto_total_times_shader_swaps.npy", np.array(potto_total_times))
         np.save("potto_ast_sizes_shader_swaps.npy", np.array(potto_ast_sizes))
 
+        teg_num_shader_swaps, teg_compile_times, teg_eval_times, teg_ast_sizes = run_teg_shader_swap_microbenchmark(num_shader_swap=min(num_shader_swap, 15), num_samples=10)
+        teg_total_times = np.array(teg_compile_times) + np.array(teg_eval_times)
+        np.save("teg_num_shader_swaps.npy", np.array(teg_num_shader_swaps))
+        np.save("teg_compile_times_shader_swaps.npy", np.array(teg_compile_times))
+        np.save("teg_eval_times_shader_swaps.npy", np.array(teg_eval_times))
+        np.save("teg_total_times_shader_swaps.npy", np.array(teg_total_times))
+        np.save("teg_ast_sizes_shader_swaps.npy", np.array(teg_ast_sizes))
+
+    teg_compile_times_mean = np.array([geo_mean_overflow(x) for x in teg_compile_times])
+    potto_compile_times_mean = np.array([geo_mean_overflow(x) for x in potto_compile_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Shader Swaps", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Compile Time", fontsize=25)
-    ax.plot(teg_num_shader_swaps, teg_compile_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_shader_swaps, potto_compile_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_shader_swaps, teg_compile_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_shader_swaps, potto_compile_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -144,13 +157,16 @@ def plot_shader_swaps(num_shader_swap=10, load_local=False):
     ax.legend(loc="upper right", fontsize=25)
     plt.savefig("shader_swaps_compile_time.png", bbox_inches = "tight")
 
+    teg_eval_times_mean = np.array([geo_mean_overflow(x) for x in teg_eval_times])
+    potto_eval_times_mean = np.array([geo_mean_overflow(x) for x in potto_eval_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Shader Swaps", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Evaluation Time", fontsize=25)
-    ax.plot(teg_num_shader_swaps, teg_eval_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_shader_swaps, potto_eval_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_shader_swaps, teg_eval_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_shader_swaps, potto_eval_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -173,13 +189,16 @@ def plot_shader_swaps(num_shader_swap=10, load_local=False):
     ax.legend(loc="upper left", fontsize=25)
     plt.savefig("shader_swaps_code_size.png", bbox_inches = "tight")
 
+    teg_total_times_mean = np.array([geo_mean_overflow(x) for x in teg_total_times])
+    potto_total_times_mean = np.array([geo_mean_overflow(x) for x in potto_total_times])
+
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel("Number of Shader Swaps", fontsize=25)
     ax.set_ylabel("Time(s)", fontsize=25)
     ax.set_yscale('log')
     ax.set_title("Total Time", fontsize=25)
-    ax.plot(teg_num_shader_swaps, teg_total_times, label="Teg", linewidth=4, color="#648FFF")
-    ax.plot(potto_num_shader_swaps, potto_total_times, label="Potto", linewidth=4, color="#FE6100")
+    ax.plot(teg_num_shader_swaps, teg_total_times_mean, label="Teg", linewidth=4, color="#648FFF")
+    ax.plot(potto_num_shader_swaps, potto_total_times_mean, label="Potto", linewidth=4, color="#FE6100")
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.spines["left"].set_linewidth(2)
@@ -192,6 +211,13 @@ def plot_shader_swaps(num_shader_swap=10, load_local=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--load", action="store_true", help="Load local results from previous run")
+    parser.add_argument("--heaviside", action="store_true", help="Run heaviside microbenchmark")
+    parser.add_argument("--shader-swap", action="store_true", help="Run shader swap microbenchmark")
+    parser.add_argument("--all", action="store_true", help="Run all microbenchmarks")
     args = parser.parse_args()
-    plot_heavisides(50, args.load)
-    plot_shader_swaps(50, args.load)
+    if args.heaviside or args.all:
+        print("run heaviside")
+        plot_heavisides(50, args.load)
+    if args.shader_swap or args.all:
+        print("run shader swap")
+        plot_shader_swaps(50, args.load)
