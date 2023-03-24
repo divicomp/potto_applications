@@ -103,8 +103,8 @@ def run_potto_shader_swap_microbenchmark(num_shader_swap=10, num_samples=10):
             end = time.time()
             eval_time = end - start
             eval_times[n].append(eval_time)
-        assert(len(compile_times[n]) == NUM_RUNS)
-        assert(len(eval_times[n]) == NUM_RUNS)
+        assert(len(compile_times[n]) == NUM_SHADER_RUNS)
+        assert(len(eval_times[n]) == NUM_SHADER_RUNS)
         size = get_ast_size(dexpr)
         print(f"AST size: {size}")
         ast_sizes.append(size)
