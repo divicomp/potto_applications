@@ -25,12 +25,18 @@ See `run_potto_shader_swap_microbenchmark` in `potto_microbenchmarks.py` and `ru
 
 ### Reproduce
 
-To reproduce figures of these two microbenchmarks (Fig.9 and Fig.10 in the paper), run:
+To reproduce figures of these two microbenchmarks, run the following commands:
 
+#### Number of Heavisides
+```
+python plot_figures.py --heaviside
+```
 
+#### Number of Shader Swaps
 ```
-python plot_figures.py
+python plot_figures.py --shader-swap
 ```
+
 
 Notice that for the separate compilation benchmark, the compilation time of Teg reaches timeout very quickly so we manually set its maximum number of shader swaps to 15.
 
