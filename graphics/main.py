@@ -85,7 +85,7 @@ def main(image_width, image_height, is_primal):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--size", required=True, choices=["small", "medium", "large"], help="The size of rendered image: Small: 4x4, Medium: 16x16, Large: 40x40")
-    parser.add_argument("--mode", required=True, choices=["primal", "gradient"], help="TODO:")
+    parser.add_argument("--mode", required=True, choices=["primal", "deriv"], help="Which image to render, primal renders the forward image, deriv renders the derivative image")
     args = parser.parse_args()
     image_width, image_height = 0, 0
     if args.size == "small":
