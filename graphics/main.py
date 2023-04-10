@@ -72,9 +72,10 @@ def main(image_width, image_height, is_primal):
     rt = RayTraceThresholdLambertianPotto(light_sg, light_cam, 10)
 
     start = time.time()
-    potto_img = rt.ray_trace_toon_parallel(image_width, image_height)
+    potto_img = rt.ray_trace_parallel(image_width, image_height, is_primal)
     end = time.time()
-    print(f"rendering of {image_width}x{image_height} took {end - start} seconds")
+    mode = "primal" if is_primal else "deriv"
+    print(f"rendering {mode} image of {image_width}x{image_height} took {end - start} seconds")
 
     plt.axis('off')
     plt.imshow(potto_img)

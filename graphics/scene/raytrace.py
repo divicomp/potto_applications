@@ -63,7 +63,7 @@ class RayTrace(object):
     cur_screen_width = 0
     cur_screen_height = 0
 
-    def build_diff_rt_expr_toon(self, pix_x, pix_y, screen_width, screen_height) -> tuple[GExpr, GExpr, GExpr]:
+    def build_diff_rt_expr(self, pix_x, pix_y, screen_width, screen_height) -> tuple[GExpr, GExpr, GExpr]:
         raise NotImplementedError
 
 
@@ -100,7 +100,7 @@ class RayTracePython(RayTrace):
 
         return sample_color
 
-    def ray_trace_xy_toon(self, pix_x, pix_y, max_xpix, max_ypix) -> Any:
+    def ray_trace_xy(self, pix_x, pix_y, max_xpix, max_ypix) -> Any:
         """
         screen coords: [0, max_xpix] x [0, max_ypix]
         samples in: [pix_x, pix_x+1] x [pix_y, pix_y+1]
@@ -124,23 +124,23 @@ class RayTracePython(RayTrace):
         # ret color
         return pix_color.tolist()
 
-    def ray_trace_toon_hack(self, screen_width, screen_height):
+    def ray_trace(self, screen_width, screen_height):
         c = np.zeros((screen_width, screen_height, 4))  # RGBA
         for x in range(screen_width):
             for y in range(screen_height):
-                c[x, y] = self.ray_trace_xy_toon(pix_x=x, pix_y=y, max_xpix=screen_width, max_ypix=screen_height)
+                c[x, y] = self.ray_trace_xy(pix_x=x, pix_y=y, max_xpix=screen_width, max_ypix=screen_height)
                 # print(c[x, y])
                 print(f"traced {x, y} {c[x, y]}")
         return c
 
-    def ray_trace_toon_parallel_hack(self, screen_width, screen_height):
-        def raytrace_xy_proxy(x, y):
-            c = self.ray_trace_xy_toon(pix_x=x, pix_y=y, max_xpix=screen_width, max_ypix=screen_height)
+    def ray_trace_parallel(self, screen_width, screen_height):
+        def ray_trace_xy_proxy(x, y):
+            c = self.ray_trace_xy(pix_x=x, pix_y=y, max_xpix=screen_width, max_ypix=screen_height)
             print((x, y), c)
             return (x, y), c
 
         results = Parallel(n_jobs=cpu_count() - 1)(
-            delayed(raytrace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
+            delayed(ray_trace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
         )
 
         c = np.zeros((screen_width, screen_height, 4))
@@ -273,7 +273,7 @@ class RayTracePotto(RayTrace):
         final_color_b = black_color.b * (1 - does_hit) + sample_color.b * does_hit * (1 - val_lt_threshold) + toon_color.b * does_hit * val_lt_threshold
         return [final_color_r, final_color_g, final_color_b, Const(1)]
 
-    def ray_trace_xy_toon(self, var_val: VarVal, intr: GExpr, intg: GExpr, intb: GExpr) -> list[float]:
+    def ray_trace_xy(self, var_val: VarVal, intr: GExpr, intg: GExpr, intb: GExpr, is_primal: bool) -> list[float]:
         num_samples = self.num_samples
 
         sym_dt = Sym("dt")
@@ -283,8 +283,10 @@ class RayTracePotto(RayTrace):
         for i, intx in enumerate((intr, intg, intb)):
             intx = simplify(intx, var_val)
 
-            expr_dt = intx
-            # expr_dt = deriv(intx, derive_ctx)
+            if is_primal:
+                expr_dt = intx
+            else:
+                expr_dt = deriv(intx, derive_ctx)
 
             var_val = VarVal({VAR_T.name: 1, VAR_S.name: -20, sym_dt: 1, sym_ds: 1} | var_val._data)
 
@@ -294,7 +296,7 @@ class RayTracePotto(RayTrace):
         pix_color = Color(pix_color[0] * num_samples, pix_color[1]  * num_samples, pix_color[2]  * num_samples, num_samples)
         return (pix_color).tolist()
 
-    def build_diff_rt_expr_toon(self, pix_x, pix_y, screen_width, screen_height) -> tuple[GExpr, GExpr, GExpr]:
+    def build_diff_rt_expr(self, pix_x, pix_y, screen_width, screen_height) -> tuple[GExpr, GExpr, GExpr]:
         cam = self.camera
 
         def f(deltax, deltay):
@@ -310,26 +312,26 @@ class RayTracePotto(RayTrace):
         intb = Int(Int(b, mux), nuy)
         return (intr, intg, intb)
 
-    def ray_trace_toon(self, screen_width, screen_height):
+    def ray_trace(self, screen_width, screen_height, is_primal):
         c = np.zeros((screen_width, screen_height, 4))
-        intr, intg, intb = self.build_diff_rt_expr_toon(pix_x, pix_y, screen_width, screen_height)
+        intr, intg, intb = self.build_diff_rt_expr(pix_x, pix_y, screen_width, screen_height)
         for x in range(screen_width):
             for y in range(screen_height):
                 var_val = VarVal({pix_x.name: x, pix_y.name: y})
-                c[x, y] = self.ray_trace_xy_toon(var_val, intr, intg, intb)
+                c[x, y] = self.ray_trace_xy(var_val, intr, intg, intb, is_primal)
                 print(f"traced {x, y} {c[x, y]}")
         return c
 
-    def ray_trace_toon_parallel(self, screen_width, screen_height):
-        intr, intg, intb = self.build_diff_rt_expr_toon(pix_x, pix_y, screen_width, screen_height)
-        def raytrace_xy_proxy(x, y):
+    def ray_trace_parallel(self, screen_width, screen_height, is_primal):
+        intr, intg, intb = self.build_diff_rt_expr(pix_x, pix_y, screen_width, screen_height)
+        def ray_trace_xy_proxy(x, y):
             var_val = VarVal({pix_x.name: x, pix_y.name: y})
-            c = self.ray_trace_xy_toon(var_val, intr, intg, intb)
+            c = self.ray_trace_xy(var_val, intr, intg, intb, is_primal)
             print((x, y), c)
             return (x, y), c
 
         results = Parallel(n_jobs=cpu_count() - 1)(
-            delayed(raytrace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
+            delayed(ray_trace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
         )
 
         c = np.zeros((screen_width, screen_height, 4))
@@ -734,7 +736,7 @@ class RayTraceSwappablePotto(RayTrace):
         final_color_b = black_color.b * (1 - does_hit) + final_color.b * cos_theta / M_PI * light_color.r * does_hit
         return [final_color_r, final_color_g, final_color_b, Const(1)]
 
-    def ray_trace_xy_toon(self, var_val: VarVal, intr: GExpr, intg: GExpr, intb: GExpr) -> list[float]:
+    def ray_trace_xy(self, var_val: VarVal, intr: GExpr, intg: GExpr, intb: GExpr) -> list[float]:
         num_samples = self.num_samples
 
         sym_dt = Sym("dt")
@@ -757,7 +759,7 @@ class RayTraceSwappablePotto(RayTrace):
         pix_color = Color(pix_color[0] * num_samples, pix_color[1]  * num_samples, pix_color[2]  * num_samples, num_samples)
         return (pix_color).tolist()
 
-    def build_diff_rt_expr_toon_swappable(self, pix_x, pix_y, screen_width, screen_height, is_default_shader = True) -> tuple[GExpr, GExpr, GExpr]:
+    def build_diff_rt_expr_swappable(self, pix_x, pix_y, screen_width, screen_height, is_default_shader = True) -> tuple[GExpr, GExpr, GExpr]:
         self.cur_screen_width = screen_width
         self.cur_screen_height = screen_height
         # cam = self.camera
@@ -805,26 +807,26 @@ class RayTraceSwappablePotto(RayTrace):
         intb = Int(Int(b, mux), nuy)
         return (intr, intg, intb)
 
-    def ray_trace_toon(self, screen_width, screen_height, is_default_shader):
+    def ray_trace(self, screen_width, screen_height, is_default_shader):
         c = np.zeros((screen_width, screen_height, 4))
-        intr, intg, intb = self.build_diff_rt_expr_toon_swappable(pix_x, pix_y, screen_width, screen_height, is_default_shader)
+        intr, intg, intb = self.build_diff_rt_expr_swappable(pix_x, pix_y, screen_width, screen_height, is_default_shader)
         for x in range(screen_width):
             for y in range(screen_height):
                 var_val = VarVal({pix_x.name: x, pix_y.name: y})
-                c[x, y] = self.ray_trace_xy_toon(var_val, intr, intg, intb)
+                c[x, y] = self.ray_trace_xy(var_val, intr, intg, intb)
                 print(f"traced {x, y} {c[x, y]}")
         return c
 
-    def ray_trace_toon_parallel(self, screen_width, screen_height, is_default_shader):
-        intr, intg, intb = self.build_diff_rt_expr_toon_swappable(pix_x, pix_y, screen_width, screen_height, is_default_shader)
-        def raytrace_xy_proxy(x, y):
+    def ray_trace_parallel(self, screen_width, screen_height, is_default_shader):
+        intr, intg, intb = self.build_diff_rt_expr_swappable(pix_x, pix_y, screen_width, screen_height, is_default_shader)
+        def ray_trace_xy_proxy(x, y):
             var_val = VarVal({pix_x.name: x, pix_y.name: y})
-            c = self.ray_trace_xy_toon(var_val, intr, intg, intb)
+            c = self.ray_trace_xy(var_val, intr, intg, intb)
             print((x, y), c)
             return (x, y), c
 
         results = Parallel(n_jobs=cpu_count() - 1)(
-            delayed(raytrace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
+            delayed(ray_trace_xy_proxy)(x, y) for x in range(screen_width) for y in range(screen_height)
         )
 
         c = np.zeros((screen_width, screen_height, 4))
