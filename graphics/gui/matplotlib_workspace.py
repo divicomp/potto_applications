@@ -15,8 +15,8 @@ from potto import Const
 from potto import evaluate_all
 import time
 
-IMAGE_WIDTH = 16
-IMAGE_HEIGHT = 16
+IMAGE_WIDTH = 40
+IMAGE_HEIGHT = 40
 
 def main():
     def to_raw_pnt(var_vals, p: Pnt3):
@@ -113,7 +113,7 @@ def main():
     )
 
     aspect_ratio = IMAGE_WIDTH / IMAGE_HEIGHT
-    cam = TurntableCamera(dist=7, angle=0, aspect_ratio=aspect_ratio, fov_angle_y=90*np.pi/180)
+    cam = TurntableCamera(dist=10, angle=0, aspect_ratio=aspect_ratio, fov_angle_y=90*np.pi/180)
     rt = RayTrace(sg, cam, 10)
     rt2 = RayTracePython(raw_sg, cam, 10)
     rt3 = RayTracePotto(sg, cam, 10)
