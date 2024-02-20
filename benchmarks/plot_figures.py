@@ -1,44 +1,47 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 from matplotlib.pyplot import figure
-from teg_microbenchmarks import run_teg_heaviside_microbenchmark, run_teg_shader_swap_microbenchmark
-from potto_microbenchmarks import run_potto_heaviside_microbenchmark, run_potto_shader_swap_microbenchmark
 import numpy as np
 import argparse
+import os
+
+DATA_DIR_PREFIX = "benchmark_data/"
 
 def geo_mean_overflow(iterable):
     return np.exp(np.log(iterable).mean())
 
 def plot_heavisides(num_heaviside=10, load_local=False):
     if load_local:
-        teg_num_heavisides = np.load("teg_num_heavisides.npy")
-        teg_compile_times = np.load("teg_compile_times_heavisides.npy")
-        teg_eval_times = np.load("teg_eval_times_heavisides.npy")
-        teg_total_times = np.load("teg_total_times_heavisides.npy")
-        teg_ast_sizes = np.load("teg_ast_sizes_heavisides.npy")
+        teg_num_heavisides = np.load(DATA_DIR_PREFIX + "teg_num_heavisides.npy")
+        teg_compile_times = np.load(DATA_DIR_PREFIX + "teg_compile_times_heavisides.npy")
+        teg_eval_times = np.load(DATA_DIR_PREFIX + "teg_eval_times_heavisides.npy")
+        teg_total_times = np.load(DATA_DIR_PREFIX + "teg_total_times_heavisides.npy")
+        teg_ast_sizes = np.load(DATA_DIR_PREFIX + "teg_ast_sizes_heavisides.npy")
 
-        potto_num_heavisides = np.load("potto_num_heavisides.npy")
-        potto_compile_times = np.load("potto_compile_times_heavisides.npy")
-        potto_eval_times = np.load("potto_eval_times_heavisides.npy")
-        potto_total_times = np.load("potto_total_times_heavisides.npy")
-        potto_ast_sizes = np.load("potto_ast_sizes_heavisides.npy")
+        potto_num_heavisides = np.load(DATA_DIR_PREFIX + "potto_num_heavisides.npy")
+        potto_compile_times = np.load(DATA_DIR_PREFIX + "potto_compile_times_heavisides.npy")
+        potto_eval_times = np.load(DATA_DIR_PREFIX + "potto_eval_times_heavisides.npy")
+        potto_total_times = np.load(DATA_DIR_PREFIX + "potto_total_times_heavisides.npy")
+        potto_ast_sizes = np.load(DATA_DIR_PREFIX + "potto_ast_sizes_heavisides.npy")
     else:
+        from teg_microbenchmarks import run_teg_heaviside_microbenchmark
+        from potto_microbenchmarks import run_potto_heaviside_microbenchmark
         teg_num_heavisides, teg_compile_times, teg_eval_times, teg_ast_sizes = run_teg_heaviside_microbenchmark(num_heaviside=num_heaviside, num_samples=10)
         potto_num_heavisides, potto_compile_times, potto_eval_times, potto_ast_sizes = run_potto_heaviside_microbenchmark(num_heaviside=num_heaviside, num_samples=10)
         teg_total_times = np.array(teg_compile_times) + np.array(teg_eval_times)
         potto_total_times = np.array(potto_compile_times) + np.array(potto_eval_times)
 
-        np.save("teg_num_heavisides.npy", np.array(teg_num_heavisides))
-        np.save("teg_compile_times_heavisides.npy", np.array(teg_compile_times))
-        np.save("teg_eval_times_heavisides.npy", np.array(teg_eval_times))
-        np.save("teg_total_times_heavisides.npy", np.array(teg_total_times))
-        np.save("teg_ast_sizes_heavisides.npy", np.array(teg_ast_sizes))
+        np.save(DATA_DIR_PREFIX + "teg_num_heavisides.npy", np.array(teg_num_heavisides))
+        np.save(DATA_DIR_PREFIX + "teg_compile_times_heavisides.npy", np.array(teg_compile_times))
+        np.save(DATA_DIR_PREFIX + "teg_eval_times_heavisides.npy", np.array(teg_eval_times))
+        np.save(DATA_DIR_PREFIX + "teg_total_times_heavisides.npy", np.array(teg_total_times))
+        np.save(DATA_DIR_PREFIX + "teg_ast_sizes_heavisides.npy", np.array(teg_ast_sizes))
 
-        np.save("potto_num_heavisides.npy", np.array(potto_num_heavisides))
-        np.save("potto_compile_times_heavisides.npy", np.array(potto_compile_times))
-        np.save("potto_eval_times_heavisides.npy", np.array(potto_eval_times))
-        np.save("potto_total_times_heavisides.npy", np.array(potto_total_times))
-        np.save("potto_ast_sizes_heavisides.npy", np.array(potto_ast_sizes))
+        np.save(DATA_DIR_PREFIX + "potto_num_heavisides.npy", np.array(potto_num_heavisides))
+        np.save(DATA_DIR_PREFIX + "potto_compile_times_heavisides.npy", np.array(potto_compile_times))
+        np.save(DATA_DIR_PREFIX + "potto_eval_times_heavisides.npy", np.array(potto_eval_times))
+        np.save(DATA_DIR_PREFIX + "potto_total_times_heavisides.npy", np.array(potto_total_times))
+        np.save(DATA_DIR_PREFIX + "potto_ast_sizes_heavisides.npy", np.array(potto_ast_sizes))
 
     teg_compile_times_mean = np.array([geo_mean_overflow(x) for x in teg_compile_times])
     potto_compile_times_mean = np.array([geo_mean_overflow(x) for x in potto_compile_times])
@@ -87,33 +90,35 @@ def plot_heavisides(num_heaviside=10, load_local=False):
 
 def plot_shader_swaps(num_shader_swap=10, load_local=False):
     if load_local:
-        teg_num_shader_swaps = np.load("teg_num_shader_swaps.npy")
-        teg_compile_times = np.load("teg_compile_times_shader_swaps.npy")
-        teg_eval_times = np.load("teg_eval_times_shader_swaps.npy")
-        teg_total_times = np.load("teg_total_times_shader_swaps.npy")
-        teg_ast_sizes = np.load("teg_ast_sizes_shader_swaps.npy")
+        teg_num_shader_swaps = np.load(DATA_DIR_PREFIX + "teg_num_shader_swaps.npy")
+        teg_compile_times = np.load(DATA_DIR_PREFIX + "teg_compile_times_shader_swaps.npy")
+        teg_eval_times = np.load(DATA_DIR_PREFIX + "teg_eval_times_shader_swaps.npy")
+        teg_total_times = np.load(DATA_DIR_PREFIX + "teg_total_times_shader_swaps.npy")
+        teg_ast_sizes = np.load(DATA_DIR_PREFIX + "teg_ast_sizes_shader_swaps.npy")
 
-        potto_num_shader_swaps = np.load("potto_num_shader_swaps.npy")
-        potto_compile_times = np.load("potto_compile_times_shader_swaps.npy")
-        potto_eval_times = np.load("potto_eval_times_shader_swaps.npy")
-        potto_total_times = np.load("potto_total_times_shader_swaps.npy")
-        potto_ast_sizes = np.load("potto_ast_sizes_shader_swaps.npy")
+        potto_num_shader_swaps = np.load(DATA_DIR_PREFIX + "potto_num_shader_swaps.npy")
+        potto_compile_times = np.load(DATA_DIR_PREFIX + "potto_compile_times_shader_swaps.npy")
+        potto_eval_times = np.load(DATA_DIR_PREFIX + "potto_eval_times_shader_swaps.npy")
+        potto_total_times = np.load(DATA_DIR_PREFIX + "potto_total_times_shader_swaps.npy")
+        potto_ast_sizes = np.load(DATA_DIR_PREFIX + "potto_ast_sizes_shader_swaps.npy")
     else:
+        from teg_microbenchmarks import run_teg_shader_swap_microbenchmark
+        from potto_microbenchmarks import run_potto_shader_swap_microbenchmark
         potto_num_shader_swaps, potto_compile_times, potto_eval_times, potto_ast_sizes = run_potto_shader_swap_microbenchmark(num_shader_swap=num_shader_swap, num_samples=10)
         potto_total_times = np.array(potto_compile_times) + np.array(potto_eval_times)
-        np.save("potto_num_shader_swaps.npy", np.array(potto_num_shader_swaps))
-        np.save("potto_compile_times_shader_swaps.npy", np.array(potto_compile_times))
-        np.save("potto_eval_times_shader_swaps.npy", np.array(potto_eval_times))
-        np.save("potto_total_times_shader_swaps.npy", np.array(potto_total_times))
-        np.save("potto_ast_sizes_shader_swaps.npy", np.array(potto_ast_sizes))
+        np.save(DATA_DIR_PREFIX + "potto_num_shader_swaps.npy", np.array(potto_num_shader_swaps))
+        np.save(DATA_DIR_PREFIX + "potto_compile_times_shader_swaps.npy", np.array(potto_compile_times))
+        np.save(DATA_DIR_PREFIX + "potto_eval_times_shader_swaps.npy", np.array(potto_eval_times))
+        np.save(DATA_DIR_PREFIX + "potto_total_times_shader_swaps.npy", np.array(potto_total_times))
+        np.save(DATA_DIR_PREFIX + "potto_ast_sizes_shader_swaps.npy", np.array(potto_ast_sizes))
 
         teg_num_shader_swaps, teg_compile_times, teg_eval_times, teg_ast_sizes = run_teg_shader_swap_microbenchmark(num_shader_swap=min(num_shader_swap, 15), num_samples=10)
         teg_total_times = np.array(teg_compile_times) + np.array(teg_eval_times)
-        np.save("teg_num_shader_swaps.npy", np.array(teg_num_shader_swaps))
-        np.save("teg_compile_times_shader_swaps.npy", np.array(teg_compile_times))
-        np.save("teg_eval_times_shader_swaps.npy", np.array(teg_eval_times))
-        np.save("teg_total_times_shader_swaps.npy", np.array(teg_total_times))
-        np.save("teg_ast_sizes_shader_swaps.npy", np.array(teg_ast_sizes))
+        np.save(DATA_DIR_PREFIX + "teg_num_shader_swaps.npy", np.array(teg_num_shader_swaps))
+        np.save(DATA_DIR_PREFIX + "teg_compile_times_shader_swaps.npy", np.array(teg_compile_times))
+        np.save(DATA_DIR_PREFIX + "teg_eval_times_shader_swaps.npy", np.array(teg_eval_times))
+        np.save(DATA_DIR_PREFIX + "teg_total_times_shader_swaps.npy", np.array(teg_total_times))
+        np.save(DATA_DIR_PREFIX + "teg_ast_sizes_shader_swaps.npy", np.array(teg_ast_sizes))
 
     teg_compile_times_mean = np.array([geo_mean_overflow(x) for x in teg_compile_times])
     potto_compile_times_mean = np.array([geo_mean_overflow(x) for x in potto_compile_times])
@@ -167,6 +172,8 @@ if __name__ == "__main__":
     parser.add_argument("--shader-swap", action="store_true", help="Run shader swap microbenchmark")
     parser.add_argument("--all", action="store_true", help="Run all microbenchmarks")
     args = parser.parse_args()
+    if not os.path.exists(DATA_DIR_PREFIX):
+        os.makedirs(DATA_DIR_PREFIX)
     if args.heaviside or args.all:
         print("run heaviside")
         plot_heavisides(50, args.load)
