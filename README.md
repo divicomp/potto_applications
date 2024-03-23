@@ -1,11 +1,8 @@
 # Potto applications
-To run the microbenchmarks (Figures 15 and 16) run: 
-`cd benchmarks`
-`python plot_figures.py --load --all`
+This repository contains the implementation for the applications in our differentiable programming language Potto. The applications include image stylization, fitting shader parameters, and optimizing a 3D shader. The implementation for the core to library is in https://github.com/divicomp/potto.
 
 ## Reproduce
 
-To reproduce the figures in the paper, run the following commands:
 
 ###  Discontinuous shaders
 
